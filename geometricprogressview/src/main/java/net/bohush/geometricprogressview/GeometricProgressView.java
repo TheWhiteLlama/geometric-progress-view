@@ -6,11 +6,19 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
+import net.bohush.geometricprogressview.figure.GeometricFigure;
+import net.bohush.geometricprogressview.figure.factories.GeometricFigureFactory;
+import net.bohush.geometricprogressview.figure.factories.GeometricKiteFigureFactory;
+import net.bohush.geometricprogressview.figure.factories.GeometricTriangleFigureFactory;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +43,9 @@ public class GeometricProgressView extends View {
     private List<ValueAnimator> animators;
     private GeometricProgressView.TYPE type;
 
+    @Nullable
+    private GeometricFigureFactory mGeometricFigure = null;
+
     public GeometricProgressView(Context context) {
         this(context, null);
     }
@@ -58,6 +69,20 @@ public class GeometricProgressView extends View {
             numberOfAngles = array.getInteger(R.styleable.GeometricProgressView_gp_number_of_angles, DEFAULT_NUMBER_OF_ANGLES);
             setColor(array.getColor(R.styleable.GeometricProgressView_gp_color, Color.parseColor(DEFAULT_COLOR)));
             duration = array.getInteger(R.styleable.GeometricProgressView_gp_duration, DEFAULT_DURATION);
+            final String customClassName = array.getString(R.styleable.GeometricProgressView_gp_custom_figure);
+            if (customClassName != null) {
+                try {
+                    mGeometricFigure = (GeometricFigureFactory) Class.forName(customClassName).getConstructors()[0].newInstance();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
             int typeInt = array.getInt(R.styleable.GeometricProgressView_gp_type, 0);
             switch (typeInt) {
                 case 0:
@@ -142,57 +167,40 @@ public class GeometricProgressView extends View {
         double circumference = numberOfAngles * figurePadding;
         double distanceFromCenter = circumference / (Math.PI * 2);
         int radius = size / 2 - (int) (distanceFromCenter);
-        double startAngle = 90 + (360.0 / numberOfAngles) / 2;
-        List<PointF> angles = new ArrayList<>();
-        for (int i = 0; i < numberOfAngles; i++) {
-            double angle = startAngle + i * (360.0 / numberOfAngles);
-            angles.add(new PointF(
-                    (float) (center.x + radius * Math.cos(Math.toRadians(angle))),
-                    (float) (center.y + radius * Math.sin(Math.toRadians(angle))))
-            );
-        }
-
         figures = new ArrayList<>();
-        if (TYPE.KITE.equals(type)) {
-            buildFiguresUsingKites(radius, angles, startAngle, (float) distanceFromCenter);
+        if (mGeometricFigure != null) {
+            buildFigures(mGeometricFigure, radius, (float) distanceFromCenter);
         } else {
-            buildFiguresUsingTriangles(radius, angles, startAngle, (float) distanceFromCenter);
+            final GeometricFigureFactory figure;
+            switch (type) {
+                default:
+                case KITE:
+                    figure = new GeometricKiteFigureFactory();
+                    break;
+                case TRIANGLE:
+                    figure = new GeometricTriangleFigureFactory();
+                    break;
+            }
+            buildFigures(figure, radius, (float) distanceFromCenter);
         }
         setupAnimation();
     }
 
-    private void buildFiguresUsingKites(float radius, List<PointF> angles, double startAngle, float distanceFromCenter) {
-        for (int i = 0; i < angles.size(); i++) {
-            figures.add(new GeometricStarFigure()
+    private void buildFigures(@NonNull final GeometricFigureFactory figureFactory, float radius, float distanceFromCenter) {
+        for (int i = 0; i < numberOfAngles; i++) {
+            final float deltaAngle = 360f / numberOfAngles;
+            final float p = (float) i / (numberOfAngles - 1);
+            final int alpha = (int) (230f * p + 25f);
+            figures.add(figureFactory.create()
                     .withCenter(center.x, center.y)
-                    .withAngles(360f / numberOfAngles, i * 360f / numberOfAngles)
+                    .withAngles(deltaAngle, i * deltaAngle)
                     .withRadius(radius)
                     .withDistanceFrom(distanceFromCenter)
                     .withColor(color)
-                    .withAlpha(isInEditMode() ? (int) (25.0 + i * (230.0 / numberOfAngles)) : 0)
+                    .withAlpha(isInEditMode() ? alpha : 0)
                     .build()
             );
         }
-    }
-
-    private void buildFiguresUsingTriangles(float radius, List<PointF> angles, double startAngle, float distanceFromCenter) {
-        for (int i = 0; i < angles.size(); i++) {
-            figures.add(new GeometricTriangleFigure()
-                    .withCenter(center.x, center.y)
-                    .withAngles(360f / numberOfAngles, i * 360f / numberOfAngles)
-                    .withRadius(radius)
-                    .withDistanceFrom(distanceFromCenter)
-                    .withColor(color)
-                    .withAlpha(isInEditMode() ? (int) (25.0 + i * (230.0 / numberOfAngles)) : 0)
-                    .build()
-            );
-        }
-    }
-
-    private PointF getPointBetweenPoints(PointF point1, PointF point2) {
-        float x = (point1.x + point2.x) / 2;
-        float y = (point1.y + point2.y) / 2;
-        return new PointF(x, y);
     }
 
     private void setupAnimation() {

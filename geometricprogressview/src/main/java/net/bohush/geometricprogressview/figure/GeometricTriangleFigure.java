@@ -1,4 +1,4 @@
-package net.bohush.geometricprogressview;
+package net.bohush.geometricprogressview.figure;
 
 /**
  * Created by Christian Ringshofer on 09.03.2017.
@@ -11,7 +11,7 @@ public class GeometricTriangleFigure extends GeometricFigure {
     }
 
     @Override
-    GeometricFigure build() {
+    public GeometricFigure build() {
         offset(mDistanceFromCenter, 0);
         start(0, 0);
         move(mRadius, 0, -mAngle * 0.5f);

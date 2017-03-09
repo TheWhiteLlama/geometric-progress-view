@@ -1,4 +1,4 @@
-package net.bohush.geometricprogressview;
+package net.bohush.geometricprogressview.figure;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 /**
  * Created by Christian Ringshofer on 09.03.2017.
  */
-abstract class GeometricFigure {
+public abstract class GeometricFigure {
 
     @NonNull
     private Path mPath;
@@ -38,23 +38,23 @@ abstract class GeometricFigure {
         mPaint.setStrokeWidth(0);
     }
 
-    GeometricFigure withCenter(float centerX, float centerY) {
+    public GeometricFigure withCenter(float centerX, float centerY) {
         mCenterX = centerX;
         mCenterY = centerY;
         return this;
     }
 
-    GeometricFigure withRadius(float radius) {
+    public GeometricFigure withRadius(float radius) {
         mRadius = radius;
         return this;
     }
 
-    GeometricFigure withDistanceFrom(float distanceFromCenter) {
+    public GeometricFigure withDistanceFrom(float distanceFromCenter) {
         mDistanceFromCenter = distanceFromCenter;
         return this;
     }
 
-    GeometricFigure withAngles(float angle, float rotation) {
+    public GeometricFigure withAngles(float angle, float rotation) {
         mAngle = angle;
         mRotation = rotation + geAngleOffset();
         sn = (float) Math.sin(Math.toRadians(mRotation));
@@ -64,17 +64,17 @@ abstract class GeometricFigure {
 
     abstract float geAngleOffset();
 
-    GeometricFigure withColor(int color) {
+    public GeometricFigure withColor(int color) {
         mPaint.setColor(color);
         return this;
     }
 
-    GeometricFigure withAlpha(int alpha) {
+    public GeometricFigure withAlpha(int alpha) {
         mPaint.setAlpha(alpha);
         return this;
     }
 
-    void draw(Canvas canvas) {
+    public void draw(Canvas canvas) {
         canvas.drawPath(mPath, mPaint);
     }
 
@@ -117,6 +117,6 @@ abstract class GeometricFigure {
         }
     }
 
-    abstract GeometricFigure build();
+    public abstract GeometricFigure build();
 
 }

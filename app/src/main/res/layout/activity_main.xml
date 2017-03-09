@@ -90,6 +90,7 @@
                 android:layout_gravity="center"
                 android:layout_margin="@dimen/margin"
                 app:gp_color="@android:color/holo_blue_dark"
+                app:gp_custom_figure="net.bohush.geometricprogressview.figure.factories.GeometricStarFigureFactory"
                 app:gp_number_of_angles="5"
                 app:gp_type="triangle" />
 

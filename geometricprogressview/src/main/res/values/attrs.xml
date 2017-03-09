@@ -11,6 +11,7 @@
         <attr name="gp_duration" format="integer" />
         <attr name="gp_figure_padding" format="dimension" />
         <attr name="gp_style" format="reference" />
+        <attr name="gp_custom_figure" format="string" />
     </declare-styleable>
 
 </resources>
