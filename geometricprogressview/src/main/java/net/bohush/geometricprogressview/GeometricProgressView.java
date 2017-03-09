@@ -163,7 +163,7 @@ public class GeometricProgressView extends View {
 
     private void buildFiguresUsingKites(float radius, List<PointF> angles, double startAngle, float distanceFromCenter) {
         for (int i = 0; i < angles.size(); i++) {
-            figures.add(new GeometricKiteFigure()
+            figures.add(new GeometricStarFigure()
                     .withCenter(center.x, center.y)
                     .withAngles(360f / numberOfAngles, i * 360f / numberOfAngles)
                     .withRadius(radius)

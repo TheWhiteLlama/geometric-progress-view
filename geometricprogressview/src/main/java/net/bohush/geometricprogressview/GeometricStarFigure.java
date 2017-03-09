@@ -3,7 +3,7 @@ package net.bohush.geometricprogressview;
 /**
  * Created by Christian Ringshofer on 09.03.2017.
  */
-public class GeometricKiteFigure extends GeometricFigure {
+public class GeometricStarFigure extends GeometricFigure {
 
     @Override
     float geAngleOffset() {
@@ -12,7 +12,7 @@ public class GeometricKiteFigure extends GeometricFigure {
 
     @Override
     GeometricFigure build() {
-        float cos = (float) Math.cos(Math.toRadians(mAngle * 0.5f));
+        float cos = (float) Math.cos(Math.toRadians(mAngle * 0.5f)) * 0.65f;
         offset(mDistanceFromCenter, 0);
         start(0, 0);
         move(mRadius * cos, 0, -mAngle * 0.5f);
